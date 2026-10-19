@@ -23,7 +23,9 @@ describe('AuthRolesGuard', () => {
   const buildModule = async (options: {
     config: object;
     jwtService: { verifyAsync: jest.Mock };
-    reflector: { getAllAndOverride: (...args: any[]) => UserType[] | undefined };
+    reflector: {
+      getAllAndOverride: (...args: any[]) => UserType[] | undefined;
+    };
     userService: { getCurrentUser: jest.Mock };
   }) =>
     Test.createTestingModule({
@@ -53,7 +55,11 @@ describe('AuthRolesGuard', () => {
       config: { get: () => 'secret' },
       jwtService: { verifyAsync: jest.fn().mockResolvedValue(payload) },
       reflector: { getAllAndOverride: () => [UserType.ADMIN] },
-      userService: { getCurrentUser: jest.fn().mockResolvedValue({ userType: UserType.ADMIN }) },
+      userService: {
+        getCurrentUser: jest
+          .fn()
+          .mockResolvedValue({ userType: UserType.ADMIN }),
+      },
     });
     const guard = module.get<AuthRolesGuard>(AuthRolesGuard);
     const ctx = context('Bearer valid');
@@ -63,7 +69,11 @@ describe('AuthRolesGuard', () => {
   });
 
   it('denies a user whose role is not allowed and rejects invalid tokens', async () => {
-    const userService = { getCurrentUser: jest.fn().mockResolvedValue({ userType: UserType.NORMAL_USER }) };
+    const userService = {
+      getCurrentUser: jest
+        .fn()
+        .mockResolvedValue({ userType: UserType.NORMAL_USER }),
+    };
     module = await buildModule({
       config: { get: () => 'secret' },
       jwtService: { verifyAsync: jest.fn().mockResolvedValue({ id: 4 }) },
@@ -71,7 +81,9 @@ describe('AuthRolesGuard', () => {
       userService,
     });
     const guard = module.get<AuthRolesGuard>(AuthRolesGuard);
-    await expect(guard.canActivate(context('Bearer token'))).resolves.toBe(false);
+    await expect(guard.canActivate(context('Bearer token'))).resolves.toBe(
+      false,
+    );
 
     module = await buildModule({
       config: { get: () => 'secret' },
@@ -80,6 +92,8 @@ describe('AuthRolesGuard', () => {
       userService,
     });
     const broken = module.get<AuthRolesGuard>(AuthRolesGuard);
-    await expect(broken.canActivate(context('Bearer bad'))).rejects.toBeInstanceOf(BadRequestException);
+    await expect(
+      broken.canActivate(context('Bearer bad')),
+    ).rejects.toBeInstanceOf(BadRequestException);
   });
 });

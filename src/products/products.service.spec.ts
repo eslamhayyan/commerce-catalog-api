@@ -41,14 +41,20 @@ describe('ProductService', () => {
 
   it('creates a product with a normalized title and its owner', async () => {
     repository.save.mockImplementation(async (value) => value);
-    await expect(service.CreatProduct({ title: 'Desk Lamp', description: 'lamp', price: 12 } as any, 7))
-      .resolves.toMatchObject({ title: 'desk lamp', user: { id: 7 } });
+    await expect(
+      service.CreatProduct(
+        { title: 'Desk Lamp', description: 'lamp', price: 12 } as any,
+        7,
+      ),
+    ).resolves.toMatchObject({ title: 'desk lamp', user: { id: 7 } });
   });
 
   it('lists products with optional title and price filters', async () => {
     repository.find.mockResolvedValue([]);
     await service.getAll('Lamp', '10', '20');
-    expect(repository.find).toHaveBeenCalledWith({ where: { title: Like('%lamp%'), price: Between(10, 20) } });
+    expect(repository.find).toHaveBeenCalledWith({
+      where: { title: Like('%lamp%'), price: Between(10, 20) },
+    });
     await service.getAll();
     expect(repository.find).toHaveBeenLastCalledWith({ where: {} });
   });
@@ -64,7 +70,9 @@ describe('ProductService', () => {
     const product = { id: 1, title: 'old', description: 'old', price: 1 };
     repository.findOne.mockResolvedValue(product);
     repository.save.mockImplementation(async (value) => value);
-    await expect(service.update(1, { title: 'new' } as any)).resolves.toMatchObject({ title: 'new', price: 1 });
+    await expect(
+      service.update(1, { title: 'new' } as any),
+    ).resolves.toMatchObject({ title: 'new', price: 1 });
     await expect(service.delete(1)).resolves.toEqual({ message: 'deleted' });
     expect(repository.remove).toHaveBeenCalledWith(product);
   });

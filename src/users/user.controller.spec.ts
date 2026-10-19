@@ -86,6 +86,8 @@ describe('UserController', () => {
   });
 
   it('rejects profile image uploads without a file', () => {
-    expect(() => controller.uploadProfileImage({ id: 2 } as any, undefined as any)).toThrow('File not found');
+    expect(() =>
+      controller.uploadProfileImage({ id: 2 } as any, undefined as any),
+    ).toThrow('File not found');
   });
 });

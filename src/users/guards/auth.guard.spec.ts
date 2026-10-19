@@ -22,7 +22,9 @@ describe('AuthGuard', () => {
     }).compile();
 
   it('verifies a bearer token and attaches its payload to the request', async () => {
-    module = await buildModule({ verifyAsync: jest.fn().mockResolvedValue({ id: 4 }) });
+    module = await buildModule({
+      verifyAsync: jest.fn().mockResolvedValue({ id: 4 }),
+    });
     const guard = module.get<AuthGuard>(AuthGuard);
     const ctx = context('Bearer token');
     const req = ctx.switchToHttp().getRequest();
@@ -31,10 +33,18 @@ describe('AuthGuard', () => {
   });
 
   it('rejects missing, malformed, and invalid tokens', async () => {
-    module = await buildModule({ verifyAsync: jest.fn().mockRejectedValue(new Error()) });
+    module = await buildModule({
+      verifyAsync: jest.fn().mockRejectedValue(new Error()),
+    });
     const guard = module.get<AuthGuard>(AuthGuard);
-    await expect(guard.canActivate(context())).rejects.toBeInstanceOf(BadRequestException);
-    await expect(guard.canActivate(context('Basic token'))).rejects.toBeInstanceOf(BadRequestException);
-    await expect(guard.canActivate(context('Bearer token'))).rejects.toBeInstanceOf(BadRequestException);
+    await expect(guard.canActivate(context())).rejects.toBeInstanceOf(
+      BadRequestException,
+    );
+    await expect(
+      guard.canActivate(context('Basic token')),
+    ).rejects.toBeInstanceOf(BadRequestException);
+    await expect(
+      guard.canActivate(context('Bearer token')),
+    ).rejects.toBeInstanceOf(BadRequestException);
   });
 });
