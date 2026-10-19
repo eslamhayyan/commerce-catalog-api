@@ -7,6 +7,7 @@ import { Roles } from "src/users/decorators/user-role.decorator";
 import { UserType } from "src/utils/enums";
 import { CurrentUser } from "src/users/decorators/current-user.decorator";
 import type { JwtPayLoadType } from "src/utils/types";
+import { ApiQuery, ApiOperation, ApiSecurity } from "@nestjs/swagger";
 
 
 
@@ -27,6 +28,7 @@ export class ProductController{
   @Post()
   @UseGuards(AuthRolesGuard)
   @Roles(UserType.ADMIN)
+  @ApiSecurity('bearer')
   public CreatNewProduct(@Body() body:CreatProductDto, @CurrentUser() payload: JwtPayLoadType){
     return this.productservice.CreatProduct(body, payload.id)
   }
@@ -37,6 +39,25 @@ export class ProductController{
    * @returns array of all products
    */
   @Get()
+  @ApiOperation({summary: 'Get a collection of products'})
+  @ApiQuery({
+    name:'title',
+    required: false,
+    type: 'string',
+    description: 'Get all product based on title'
+  })
+  @ApiQuery({
+    name:'minPrice',
+    required: false,
+    type: 'string',
+    description: 'Minimum Price'
+  })
+  @ApiQuery({
+    name:'maxPrice',
+    required: false,
+    type: 'string',
+    description: 'Maximum Price'
+  })
   public getAllProduct(
   @Query("title") title: string, 
   @Query("minPrice") minPrice: string, 
@@ -50,7 +71,7 @@ export class ProductController{
    * @param id 
    * @returns product
    */
-  @Get("/api/products/:id")
+  @Get(":id")
   public getSingleProduct(@Param("id",ParseIntPipe) id: number){
       return this.productservice.getOneBy(id)
   }
@@ -66,6 +87,7 @@ export class ProductController{
   @UseGuards(AuthRolesGuard)
   @Roles(UserType.ADMIN)
   @Put(":id")
+  @ApiSecurity('bearer')
   public updateProduct(@Param("id",ParseIntPipe) id: number ,@Body() body: UpdateProductDto){
     this.productservice.update(id, body)
   }
@@ -78,6 +100,7 @@ export class ProductController{
   @UseGuards(AuthRolesGuard)
   @Roles(UserType.ADMIN)
   @Delete(":id")
+  @ApiSecurity('bearer')
   public deleteProduct(@Param("id",ParseIntPipe) id: number){
     this.productservice.delete(id)
   }

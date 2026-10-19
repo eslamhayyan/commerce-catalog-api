@@ -145,12 +145,13 @@ export class UserService {
     await this.userRepository.save(user);
     return { message: "Email verified successfully" };
   }
-
+  
+  
   public async sendResetPassword(email: string){
     return this.authProvider.sendResetPasswordLink(email);
   }
 
-  public async ResetPassword(userId: number, resetPasswordToken: string){
+  public async getResetPassword(userId: number, resetPasswordToken: string){
     return this.authProvider.getResetPasswordLink(userId, resetPasswordToken)
   }
 

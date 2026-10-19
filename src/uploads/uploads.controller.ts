@@ -4,6 +4,8 @@ import { diskStorage } from "multer";
 import type {Express, Response} from "express";
 import { basename, extname, join } from "path";
 import { existsSync, mkdirSync } from "fs";
+import { ApiBody, ApiConsumes } from "@nestjs/swagger";
+import { FilesUploadDto } from "./dtos/files-upload.dto";
 
 // Ensure the images directory exists
   if (!existsSync("./images")) {
@@ -36,6 +38,8 @@ export class UploadController{
    */
   @Post('multiple-files')
   @UseInterceptors(FileInterceptor("files"))
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({type: FilesUploadDto, description: 'Upload multiplle file'})
   uploadMultipleFiles(@UploadedFiles() files: Array<Express.Multer.File>){
     if(!files || files.length === 0){
       throw new BadRequestException("No files found");

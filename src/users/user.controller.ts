@@ -14,6 +14,10 @@ import { diskStorage } from "multer";
 import { basename, extname, join } from "path";
 import type { Response } from "express";
 import { existsSync } from "fs";
+import { ForgetPasswordDto } from "./dtos/forget-password.dto";
+import { ResetPasswordDto } from "./dtos/reset-password.dto";
+import { ApiBody, ApiConsumes, ApiSecurity } from "@nestjs/swagger";
+import { ImageUploadDto } from "./dtos/image-upload.dto";
 
 
 @Controller("api/users")
@@ -63,6 +67,9 @@ export class UserController {
   @Post('/images/profile-image')
   @UseInterceptors(FileInterceptor('user-image'))
   @UseGuards(AuthGuard)
+  @ApiSecurity('bearer')
+  @ApiConsumes("multipart/form-data")
+  @ApiBody({type: ImageUploadDto, description: 'upload profile image'})
   public uploadProfileImage(@CurrentUser() payload: JwtPayLoadType, @UploadedFile() file: Express.Multer.File) {
     if(!file){
       throw new BadRequestException("File not found");
@@ -91,6 +98,25 @@ export class UserController {
     @Param('id', ParseIntPipe) id: number, 
     @Param('validationToken') verificationToken: string) {
     return this.userService.verifyEmail(id, verificationToken);
+  }
+
+  @Post('forgot-password')
+  @HttpCode(HttpStatus.OK)
+  public forgetPassword(@Body() body: ForgetPasswordDto) {
+    return this.userService.sendResetPassword(body.email)
+  }
+
+  @Get('reset-password/:id/:resetPasswordToken')
+  public getResetPassword(
+    @Param('id', ParseIntPipe)id: number,
+    @Param('resetPasswordToken') resetPasswordToken: string){
+      return this.userService.getResetPassword(id, resetPasswordToken)
+  }
+
+  @Post('reset-password')
+  @HttpCode(HttpStatus.OK)
+  public resetPassword(@Body() body:ResetPasswordDto){
+    return this.userService.resetPassword(body)
   }
 
 }
