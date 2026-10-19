@@ -1,16 +1,42 @@
 import { NotFoundException } from '@nestjs/common';
-import { ProductService } from './products.service';
+import { Test, TestingModule } from '@nestjs/testing';
+import { getRepositoryToken } from '@nestjs/typeorm';
+import { UserService } from 'src/users/user.service';
 import { Like, Between } from 'typeorm';
+import { Product } from './products.entity';
+import { ProductService } from './products.service';
 
 describe('ProductService', () => {
+  let module: TestingModule;
   let service: ProductService;
-  let repository: any;
-  let users: any;
+  let repository: {
+    create: jest.Mock;
+    save: jest.Mock;
+    find: jest.Mock;
+    findOne: jest.Mock;
+    remove: jest.Mock;
+  };
+  let users: { getCurrentUser: jest.Mock };
 
-  beforeEach(() => {
-    repository = { create: jest.fn((value) => value), save: jest.fn(), find: jest.fn(), findOne: jest.fn(), remove: jest.fn() };
+  beforeEach(async () => {
+    repository = {
+      create: jest.fn((value) => value),
+      save: jest.fn(),
+      find: jest.fn(),
+      findOne: jest.fn(),
+      remove: jest.fn(),
+    };
     users = { getCurrentUser: jest.fn().mockResolvedValue({ id: 7 }) };
-    service = new ProductService(repository, users);
+
+    module = await Test.createTestingModule({
+      providers: [
+        ProductService,
+        { provide: getRepositoryToken(Product), useValue: repository },
+        { provide: UserService, useValue: users },
+      ],
+    }).compile();
+
+    service = module.get<ProductService>(ProductService);
   });
 
   it('creates a product with a normalized title and its owner', async () => {
