@@ -1,5 +1,5 @@
 {
-  "name": "nestjs-app-course",
+  "name": "commerce-catalog-api",
   "version": "0.0.1",
   "description": "",
   "author": "",
@@ -83,6 +83,10 @@
       "**/*.(t|j)s"
     ],
     "coverageDirectory": "../coverage",
-    "testEnvironment": "node"
+    "testEnvironment": "node",
+    "setupFilesAfterEnv": ["<rootDir>/test-setup.ts"],
+    "moduleNameMapper": {
+      "^src/(.*)$": "<rootDir>/$1"
+    }
   }
 }
